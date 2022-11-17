@@ -14,59 +14,110 @@ app.use(cors({origin: '*'}));
 
 let x = true;
 // require socket.io
-const io = require('socket.io')(); //<------
-require('./socket')(io)         
+//const io = require('socket.io')(); //<------
+//require('./socket')(io)         
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'hbs');
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(logger('dev'));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
+// app.use(cookieParser());
+// app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// app.use(function(req, res, next) {
+//   next(createError(404));
+// });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+// app.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
+
+// io.sockets.on('connection', (socket) => {
+//   console.log(`new connection id: ${socket.id}`);
+//   io.socketsJoin("room1");
+//   io.socketsJoin("room2");
+//   sendData(socket);
+//   console.log(sendData(socket))
+// })
+
+// function sendData(socket){
+    
+//   if(x){
+//       socket.to("room1").emit('data1', Array.from({length: 8}, () => Math.floor(Math.random() * 590)+ 10));
+//       x = !x;
+//   }else{
+//       socket.to("room2").emit('data2', Array.from({length: 8}, () => Math.floor(Math.random() * 590)+ 10));
+//       x = !x;
+//   }
+
+//   console.log(`data is ${x}`);
+//   setTimeout(() => {
+//       sendData(socket);
+//   }, 5000);
+// }
+
+var corsOptions = {
+  origin: "http://localhost:8080"
+};
+
+app.use(cors(corsOptions));
+
+// parse requests of content-type - application/json
+app.use(express.json());
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+
+// simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to bezkoder application." });
 });
 
-io.sockets.on('connection', (socket) => {
-  console.log(`new connection id: ${socket.id}`);
-  io.socketsJoin("room1");
-  io.socketsJoin("room2");
-  sendData(socket);
-  console.log(sendData(socket))
-})
+// set port, listen for requests
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
 
-function sendData(socket){
-    
-  if(x){
-      socket.to("room1").emit('data1', Array.from({length: 8}, () => Math.floor(Math.random() * 590)+ 10));
-      x = !x;
-  }else{
-      socket.to("room2").emit('data2', Array.from({length: 8}, () => Math.floor(Math.random() * 590)+ 10));
-      x = !x;
-  }
 
-  console.log(`data is ${x}`);
-  setTimeout(() => {
-      sendData(socket);
-  }, 5000);
+const db = require("./models");
+const Role = db.role;
+
+// db.sequelize.sync({force: true}).then(() => {
+//   console.log('Drop and Resync Db');
+//   initial();
+// });
+
+function initial() {
+  Role.create({
+    id: 1,
+    name: "user"
+  });
+ 
+  Role.create({
+    id: 2,
+    name: "moderator"
+  });
+ 
+  Role.create({
+    id: 3,
+    name: "admin"
+  });
 }
-module.exports = { app, io }; 
+
+
+module.exports = { app }; 
