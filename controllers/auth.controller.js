@@ -77,10 +77,12 @@ exports.signin = (req, res) => {
         res.status(200).send({
           id: user.id,
           username: user.username,
+          password:user.password,
           email: user.email,
           roles: authorities,
           accessToken: token
         });
+        console.log(user);
       });
     })
     .catch(err => {
